@@ -4,15 +4,12 @@ const DB_NAME = 'AegisVault';
 const STORE_NAME = 'secure_logs';
 const KEY_STORAGE = 'aegis_master_key';
 
-/**
- * CRYPTO LAYER: AES-GCM
- * Generates a key if none exists, stored in Chrome Local Storage.
- */
 async function getMasterKey() {
+  if (typeof chrome === 'undefined' || !chrome.storage) return null;
+
   const stored = await chrome.storage.local.get(KEY_STORAGE);
   
   if (stored[KEY_STORAGE]) {
-    // Import existing key
     return window.crypto.subtle.importKey(
       "jwk",
       stored[KEY_STORAGE],
@@ -21,7 +18,6 @@ async function getMasterKey() {
       ["encrypt", "decrypt"]
     );
   } else {
-    // Generate new key
     const key = await window.crypto.subtle.generateKey(
       { name: "AES-GCM", length: 256 },
       true,
@@ -33,53 +29,48 @@ async function getMasterKey() {
   }
 }
 
-/**
- * ENCRYPT AND SAVE
- * Called by background script for every packet.
- */
 export async function encryptAndSave(plainText, url, tabId) {
-  const key = await getMasterKey();
-  const iv = window.crypto.getRandomValues(new Uint8Array(12));
-  const encoded = new TextEncoder().encode(plainText);
+  try {
+    const key = await getMasterKey();
+    if (!key) throw new Error("Key generation failed");
 
-  const ciphertext = await window.crypto.subtle.encrypt(
-    { name: "AES-GCM", iv: iv },
-    key,
-    encoded
-  );
+    const iv = window.crypto.getRandomValues(new Uint8Array(12));
+    const encoded = new TextEncoder().encode(plainText);
 
-  const entry = {
-    id: crypto.randomUUID(),
-    tabId: tabId,
-    timestamp: Date.now(),
-    url: url,
-    iv: Array.from(iv), // Must convert to Array to store in IDB/JSON
-    data: Array.from(new Uint8Array(ciphertext))
-  };
+    const ciphertext = await window.crypto.subtle.encrypt(
+      { name: "AES-GCM", iv: iv },
+      key,
+      encoded
+    );
 
-  // Persist to IndexedDB
-  const db = await openDB(DB_NAME, 1, {
-    upgrade(db) {
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
-        store.createIndex('tabId', 'tabId');
-        store.createIndex('timestamp', 'timestamp');
-      }
-    },
-  });
+    const entry = {
+      id: crypto.randomUUID(),
+      tabId: tabId,
+      timestamp: Date.now(),
+      url: url,
+      iv: Array.from(iv),
+      data: Array.from(new Uint8Array(ciphertext))
+    };
 
-  await db.add(STORE_NAME, entry);
-  console.log(`[Aegis] Encrypted packet stored: ${entry.id}`);
+    const db = await openDB(DB_NAME, 1, {
+      upgrade(db) {
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+          store.createIndex('tabId', 'tabId');
+          store.createIndex('timestamp', 'timestamp');
+        }
+      },
+    });
+
+    await db.add(STORE_NAME, entry);
+    console.log(`[Aegis] Encrypted packet stored: ${entry.id}`);
+  } catch (err) {
+    console.error("[Aegis] Encryption Error:", err);
+  }
 }
 
-/**
- * DECRYPT AND FETCH
- * Called by the UI to restore history.
- */
 export async function fetchDecryptedHistory() {
   const db = await openDB(DB_NAME, 1);
-  // In a real app, you would query by specific tab/session. 
-  // For prototype, we get everything.
   const logs = await db.getAllFromIndex(STORE_NAME, 'timestamp');
   
   const key = await getMasterKey();
@@ -106,5 +97,5 @@ export async function fetchDecryptedHistory() {
     }
   }));
 
-  return decryptedLogs.reverse(); // Newest first
+  return decryptedLogs.reverse();
 }

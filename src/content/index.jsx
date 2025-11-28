@@ -1,8 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { Shield, X, Lock, Terminal } from 'lucide-react';
+import { Shield, X, Lock } from 'lucide-react';
 
-// Message Listener
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "MOUNT_OVERLAY") {
     mountAegisOverlay(request.data);
@@ -10,12 +9,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 function mountAegisOverlay(historyData) {
-  // Check if already mounted
   if (document.getElementById('aegis-root-host')) return;
 
   const host = document.createElement('div');
   host.id = 'aegis-root-host';
-  // High Z-Index to stay on top of any "censorship" layers
   host.style.position = 'fixed';
   host.style.top = '0';
   host.style.right = '0';
@@ -31,7 +28,7 @@ function mountAegisOverlay(historyData) {
 const AegisInterface = ({ history, onClose }) => {
   return (
     <div style={{
-      fontFamily: '"Fira Code", monospace',
+      fontFamily: 'monospace',
       width: '450px',
       height: '100vh',
       backgroundColor: '#0a0a0a',
@@ -41,7 +38,6 @@ const AegisInterface = ({ history, onClose }) => {
       flexDirection: 'column',
       boxShadow: '-10px 0 30px rgba(0,0,0,0.8)'
     }}>
-      {/* Header */}
       <div style={{ padding: '20px', borderBottom: '1px solid #333', display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#111' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <Shield size={20} color="#10b981" />
@@ -52,13 +48,11 @@ const AegisInterface = ({ history, onClose }) => {
         </button>
       </div>
 
-      {/* Stats Bar */}
       <div style={{ padding: '10px 20px', background: '#0f1f15', borderBottom: '1px solid #10b981', fontSize: '12px', color: '#10b981', display: 'flex', alignItems: 'center', gap: '8px' }}>
         <Lock size={12} />
         {history.length} Packets Resurrected | End-to-End Encrypted
       </div>
 
-      {/* Log Stream */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {history.map((log) => (
           <div key={log.id} style={{ 
@@ -77,8 +71,6 @@ const AegisInterface = ({ history, onClose }) => {
               wordBreak: 'break-all',
               color: '#d4d4d4'
             }}>
-              {/* Note: In a real app, parse the specific JSON structure of the target AI. */}
-              {/* For this prototype, we show the raw verified payload. */}
               {log.text}
             </div>
           </div>

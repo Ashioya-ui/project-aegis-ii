@@ -6,59 +6,59 @@
     "isEntry": true
   },
   "_index-!~{003}~.js": {
-    "file": "assets/index-NsFR1SB8.css",
+    "file": "assets/index-Bldtl0WR.css",
     "src": "_index-!~{003}~.js"
   },
-  "_index-D21sSIrr.js": {
-    "file": "assets/index-D21sSIrr.js",
+  "_index-DEESrVjS.js": {
+    "file": "assets/index-DEESrVjS.js",
     "name": "index",
     "imports": [
-      "_shield-Co6_GXhE.js",
-      "_vault-OFHbTrfE.js"
+      "_shield-Cc4tPNbJ.js",
+      "_vault-BiPFcfT_.js"
     ],
     "css": [
-      "assets/index-NsFR1SB8.css"
+      "assets/index-Bldtl0WR.css"
     ]
   },
-  "_shield-Co6_GXhE.js": {
-    "file": "assets/shield-Co6_GXhE.js",
+  "_shield-Cc4tPNbJ.js": {
+    "file": "assets/shield-Cc4tPNbJ.js",
     "name": "shield"
   },
-  "_vault-OFHbTrfE.js": {
-    "file": "assets/vault-OFHbTrfE.js",
+  "_vault-BiPFcfT_.js": {
+    "file": "assets/vault-BiPFcfT_.js",
     "name": "vault"
   },
   "index.html": {
-    "file": "assets/index.html-B6DwjDgE.js",
+    "file": "assets/index.html-C6DI0ehk.js",
     "name": "index.html",
     "src": "index.html",
     "isEntry": true,
     "imports": [
-      "_index-D21sSIrr.js",
-      "_shield-Co6_GXhE.js",
-      "_vault-OFHbTrfE.js"
+      "_index-DEESrVjS.js",
+      "_shield-Cc4tPNbJ.js",
+      "_vault-BiPFcfT_.js"
     ]
   },
   "index.jsx-loader.js": {
-    "file": "assets/index.jsx-loader-B1_knolU.js",
+    "file": "assets/index.jsx-loader-CeNJBzFY.js",
     "src": "index.jsx-loader.js"
   },
   "src/background/index.js": {
-    "file": "assets/index.js-CvcO2qFt.js",
+    "file": "assets/index.js-CMxJZsac.js",
     "name": "index.js",
     "src": "src/background/index.js",
     "isEntry": true,
     "imports": [
-      "_vault-OFHbTrfE.js"
+      "_vault-BiPFcfT_.js"
     ]
   },
   "src/content/index.jsx": {
-    "file": "assets/index.jsx-CU-ypNbl.js",
+    "file": "assets/index.jsx-Ci7lwJ7c.js",
     "name": "index.jsx",
     "src": "src/content/index.jsx",
     "isEntry": true,
     "imports": [
-      "_shield-Co6_GXhE.js"
+      "_shield-Cc4tPNbJ.js"
     ]
   }
 }

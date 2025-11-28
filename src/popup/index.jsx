@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { fetchDecryptedHistory } from '../utils/vault';
+import { fetchDecryptedHistory } from '../utils/vault.js';
 import { Shield, Play, Database, AlertTriangle } from 'lucide-react';
 import './popup.css';
 
@@ -9,14 +9,20 @@ const Popup = () => {
 
   const activateInterceptor = async () => {
     setStatus("loading");
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    
-    chrome.runtime.sendMessage({ 
-      action: "ACTIVATE_AEGIS", 
-      tabId: tab.id 
-    }, (response) => {
-      setStatus("active");
-    });
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (!tab) throw new Error("No active tab");
+
+      chrome.runtime.sendMessage({ 
+        action: "ACTIVATE_AEGIS", 
+        tabId: tab.id 
+      }, (response) => {
+        setStatus("active");
+      });
+    } catch (e) {
+      console.error(e);
+      setStatus("error");
+    }
   };
 
   const resurrectData = async () => {
@@ -24,13 +30,11 @@ const Popup = () => {
     const history = await fetchDecryptedHistory();
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     
-    // Send data to content script to render overlay
     chrome.tabs.sendMessage(tab.id, {
       action: "MOUNT_OVERLAY",
       data: history
     });
     
-    // Close popup so user can see overlay
     window.close();
   };
 
