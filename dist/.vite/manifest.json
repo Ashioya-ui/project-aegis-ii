@@ -1,0 +1,64 @@
+{
+  "../../../../@crx/manifest": {
+    "file": "assets/crx-manifest.js-CN6YA7Vn.js",
+    "name": "crx-manifest.js",
+    "src": "../../../../@crx/manifest",
+    "isEntry": true
+  },
+  "_index-!~{003}~.js": {
+    "file": "assets/index-NsFR1SB8.css",
+    "src": "_index-!~{003}~.js"
+  },
+  "_index-D21sSIrr.js": {
+    "file": "assets/index-D21sSIrr.js",
+    "name": "index",
+    "imports": [
+      "_shield-Co6_GXhE.js",
+      "_vault-OFHbTrfE.js"
+    ],
+    "css": [
+      "assets/index-NsFR1SB8.css"
+    ]
+  },
+  "_shield-Co6_GXhE.js": {
+    "file": "assets/shield-Co6_GXhE.js",
+    "name": "shield"
+  },
+  "_vault-OFHbTrfE.js": {
+    "file": "assets/vault-OFHbTrfE.js",
+    "name": "vault"
+  },
+  "index.html": {
+    "file": "assets/index.html-B6DwjDgE.js",
+    "name": "index.html",
+    "src": "index.html",
+    "isEntry": true,
+    "imports": [
+      "_index-D21sSIrr.js",
+      "_shield-Co6_GXhE.js",
+      "_vault-OFHbTrfE.js"
+    ]
+  },
+  "index.jsx-loader.js": {
+    "file": "assets/index.jsx-loader-B1_knolU.js",
+    "src": "index.jsx-loader.js"
+  },
+  "src/background/index.js": {
+    "file": "assets/index.js-CvcO2qFt.js",
+    "name": "index.js",
+    "src": "src/background/index.js",
+    "isEntry": true,
+    "imports": [
+      "_vault-OFHbTrfE.js"
+    ]
+  },
+  "src/content/index.jsx": {
+    "file": "assets/index.jsx-CU-ypNbl.js",
+    "name": "index.jsx",
+    "src": "src/content/index.jsx",
+    "isEntry": true,
+    "imports": [
+      "_shield-Co6_GXhE.js"
+    ]
+  }
+}
