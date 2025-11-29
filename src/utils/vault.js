@@ -4,13 +4,23 @@ const DB_NAME = 'AegisVault';
 const STORE_NAME = 'secure_logs';
 const KEY_STORAGE = 'aegis_master_key';
 
+// CHANGE 1: Universal Crypto Helper
+// Fixes "window is not defined" crash in Service Worker
+const getCrypto = () => {
+  if (typeof crypto !== 'undefined') return crypto;
+  if (typeof window !== 'undefined' && window.crypto) return window.crypto;
+  if (typeof self !== 'undefined' && self.crypto) return self.crypto;
+  throw new Error("Cryptography API not available");
+};
+
 async function getMasterKey() {
   if (typeof chrome === 'undefined' || !chrome.storage) return null;
 
   const stored = await chrome.storage.local.get(KEY_STORAGE);
+  const cryptoLib = getCrypto();
   
   if (stored[KEY_STORAGE]) {
-    return window.crypto.subtle.importKey(
+    return cryptoLib.subtle.importKey(
       "jwk",
       stored[KEY_STORAGE],
       { name: "AES-GCM" },
@@ -18,12 +28,12 @@ async function getMasterKey() {
       ["encrypt", "decrypt"]
     );
   } else {
-    const key = await window.crypto.subtle.generateKey(
+    const key = await cryptoLib.subtle.generateKey(
       { name: "AES-GCM", length: 256 },
       true,
       ["encrypt", "decrypt"]
     );
-    const exported = await window.crypto.subtle.exportKey("jwk", key);
+    const exported = await cryptoLib.subtle.exportKey("jwk", key);
     await chrome.storage.local.set({ [KEY_STORAGE]: exported });
     return key;
   }
@@ -31,13 +41,17 @@ async function getMasterKey() {
 
 export async function encryptAndSave(plainText, url, tabId) {
   try {
+    const cryptoLib = getCrypto();
     const key = await getMasterKey();
     if (!key) throw new Error("Key generation failed");
 
-    const iv = window.crypto.getRandomValues(new Uint8Array(12));
-    const encoded = new TextEncoder().encode(plainText);
+    // Fix: Handle non-string payloads safely
+    const textStr = typeof plainText === 'string' ? plainText : JSON.stringify(plainText);
+    
+    const iv = cryptoLib.getRandomValues(new Uint8Array(12));
+    const encoded = new TextEncoder().encode(textStr);
 
-    const ciphertext = await window.crypto.subtle.encrypt(
+    const ciphertext = await cryptoLib.subtle.encrypt(
       { name: "AES-GCM", iv: iv },
       key,
       encoded
@@ -63,7 +77,6 @@ export async function encryptAndSave(plainText, url, tabId) {
     });
 
     await db.add(STORE_NAME, entry);
-    console.log(`[Aegis] Encrypted packet stored: ${entry.id}`);
   } catch (err) {
     console.error("[Aegis] Encryption Error:", err);
   }
@@ -73,6 +86,7 @@ export async function fetchDecryptedHistory() {
   const db = await openDB(DB_NAME, 1);
   const logs = await db.getAllFromIndex(STORE_NAME, 'timestamp');
   
+  const cryptoLib = getCrypto();
   const key = await getMasterKey();
   const decoder = new TextDecoder();
 
@@ -81,7 +95,7 @@ export async function fetchDecryptedHistory() {
       const iv = new Uint8Array(log.iv);
       const data = new Uint8Array(log.data);
       
-      const decryptedBuffer = await window.crypto.subtle.decrypt(
+      const decryptedBuffer = await cryptoLib.subtle.decrypt(
         { name: "AES-GCM", iv: iv },
         key,
         data

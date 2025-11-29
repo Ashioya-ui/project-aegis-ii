@@ -16,7 +16,7 @@ function attachDebugger(tabId) {
 
   chrome.debugger.attach({ tabId }, "1.3", () => {
     if (chrome.runtime.lastError) {
-      console.error("[Aegis] Attach failed:", chrome.runtime.lastError.message);
+      console.warn("[Aegis] Attach failed:", chrome.runtime.lastError.message);
       return;
     }
 
@@ -35,11 +35,17 @@ chrome.debugger.onEvent.addListener(async (source, method, params) => {
     const payload = params.response.payloadData;
     const tabId = source.tabId;
     
+    // CHANGE 2: Noise Filter
+    // Ignored packets < 5 chars (Keep-Alive/Ping) to save DB space
     if (!payload || payload.length < 5) return;
 
     try {
-      const tab = await chrome.tabs.get(tabId);
-      await encryptAndSave(payload, tab.url, tabId);
+      // CHANGE 3: Tab Survival Check
+      // Prevents crash if tab was closed mid-stream
+      const tab = await chrome.tabs.get(tabId).catch(() => null);
+      if (tab) {
+        await encryptAndSave(payload, tab.url, tabId);
+      }
     } catch (err) {
       console.error("[Aegis] Capture Error:", err);
     }

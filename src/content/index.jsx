@@ -16,6 +16,8 @@ function mountAegisOverlay(historyData) {
   host.style.position = 'fixed';
   host.style.top = '0';
   host.style.right = '0';
+  // CHANGE 4: Nuclear Z-Index
+  // Uses max integer to beat any fullscreen overlay
   host.style.zIndex = '2147483647'; 
   document.body.appendChild(host);
 
