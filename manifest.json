@@ -1,0 +1,39 @@
+{
+          "manifest_version": 3,
+          "name": "Project Aegis II: Ghost Protocol",
+          "version": "2.2.0",
+          "description": "Sovereign Memory Interceptor with Covert Timing Channel Exfiltration.",
+          "permissions": [
+            "debugger",
+            "storage",
+            "tabs",
+            "activeTab",
+            "scripting"
+          ],
+          "host_permissions": [
+            "<all_urls>"
+          ],
+          "background": {
+            "service_worker": "background.js",
+            "type": "module"
+          },
+          "action": {
+            "default_title": "Activate Aegis Interceptor"
+          },
+          "content_scripts": [
+            {
+              "matches": ["<all_urls>"],
+              "js": ["content.js"],
+              "run_at": "document_end"
+            }
+          ],
+          "commands": {
+            "toggle-ui": {
+              "suggested_key": {
+                "default": "Ctrl+Shift+U",
+                "mac": "Command+Shift+U"
+              },
+              "description": "Toggle Aegis Vault Overlay"
+            }
+          }
+        }
